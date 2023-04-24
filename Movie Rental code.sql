@@ -27,8 +27,6 @@ END; $$ LANGUAGE plpgsql;
 -- SELECT * FROM summary;
 -- SELECT late_fee FROM summary;
 
-$$
-
 -- C. CREATE detailed table-
 
 DROP TABLE IF EXISTS detailed;
