@@ -1,4 +1,5 @@
 
+
 -- B. CREATE FUNCTION refreshing the summary table with a data transformation
 
 CREATE OR REPLACE FUNCTION late_price()
@@ -36,8 +37,8 @@ CREATE TABLE detailed (
 	last_name varchar (45),
 	email varchar (90),
 	rental_id integer,
-	rental_date varchar (45),
-	return_date numeric (12,2),
+	rental_date timestamp without time zone,
+	return_date timestamp without time zone,
 	payment_id integer,
 	amount float,
 	payment_date varchar (45),
@@ -57,7 +58,7 @@ CREATE TABLE summary (
 	first_name varchar (45),
 	email varchar(45),
 	rental_id integer,
-	return_date  ,
+	return_date timestamp without time zone,
 	payment_id integer,
 	amount float,
 	address_id integer,
@@ -78,21 +79,20 @@ INSERT INTO detailed (
 	rental_id,
 	rental_date,
 	return_date,
-	late_fee,
 	payment_id,
 	amount,
 	payment_date,
-	address_id
-	address
+	address_id,
+	address,
 	postal_code
-	phone)
+	)
 SELECT
 	c.customer_id, c.first_name, c.last_name, c.email,
 	r.rental_id, r.rental_date, r.return_date,
 	p.payment_id, p.amount,
 	a.address_id, a.address, a.postal_code, a.phone
 FROM rental AS r
-INNER JOIN payment AS p ON p.rental_ide = r.rental_id
+INNER JOIN payment AS p ON p.rental_id = r.rental_id
 INNER JOIN customer AS c ON p.customer_id = c.customer_id
 INNER JOIN address AS a ON c.address_id = a.address_id;
 
