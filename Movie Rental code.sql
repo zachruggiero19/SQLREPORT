@@ -15,7 +15,7 @@ INSERT INTO summary (
         return_date,
         payment_id,
         amount
-        CASE WHEN return_date > '2015-05-25' THEN 1.00 END AS late_fee
+        CASE WHEN return_date > '2015-05-25' THEN amount + 1.00 END AS late_fee
     FROM detailed
     GROUP BY customer_id, first_name, email, rental_id, return_date, payment_id, amount
     ORDER BY customer_id DESC);
