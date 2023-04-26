@@ -3,7 +3,7 @@
 -- B. CREATE FUNCTION refreshing the summary table with a data transformation
 
 CREATE OR REPLACE FUNCTION late_price()
-	RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $$
 BEGIN
 DELETE FROM summary;
 INSERT INTO summary (
@@ -11,20 +11,16 @@ INSERT INTO summary (
         customer_id,
         first_name,
         email,
-        rental_id,
         return_date,
-        payment_id,
         amount,
-        CASE WHEN return_date > '2005-06-20 00:00:00'::timestamp THEN amount + 1.00 END AS late_fee
+	CASE 
+	WHEN return_date > '2005-06-20 00:00:00'::timestamp THEN amount + 1.00 END AS late_fee
     FROM detailed
-    GROUP BY customer_id, first_name, email, rental_id, return_date, payment_id, amount, late_fee
+    GROUP BY customer_id, first_name, email, return_date, amount, late_fee
     ORDER BY customer_id DESC);
 RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 
--- To view function
--- SELECT * FROM summary;
--- SELECT late_fee FROM summary;
 
 -- C. CREATE detailed table-
 
@@ -51,9 +47,7 @@ CREATE TABLE summary (
 	customer_id integer,
 	first_name varchar (45),
 	email varchar(45),
-	rental_id integer,
 	return_date timestamp without time zone,
-	payment_id integer,
 	amount float,
 	late_fee numeric(5,2)
 	);
@@ -136,5 +130,4 @@ END; $$;
 -- To view results
 -- SELECT * FROM detailed;
 -- SELECT * FROM summary;
-
-drop procedure if exists refresh_reports();
+;
