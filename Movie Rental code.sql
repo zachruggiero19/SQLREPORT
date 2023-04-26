@@ -14,12 +14,10 @@ INSERT INTO summary (
         rental_id,
         return_date,
         payment_id,
-        amount,
-        address_id,
-        address,
+        amount
         CASE WHEN return_date > '2015-05-25' THEN 1.00 END AS late_fee
     FROM detailed
-    GROUP BY customer_id, first_name, email, rental_id, return_date, payment_id, amount, address_id, address
+    GROUP BY customer_id, first_name, email, rental_id, return_date, payment_id, amount
     ORDER BY customer_id DESC);
 RETURN NEW;
 END; $$ LANGUAGE plpgsql;
@@ -41,11 +39,7 @@ CREATE TABLE detailed (
 	return_date timestamp without time zone,
 	payment_id integer,
 	amount float,
-	payment_date varchar (45),
-	address_id integer,
-	address varchar (50),
-	postal_code integer,
-	phone integer);
+	payment_date varchar (45));
 	
 -- To view empty detailed table
 -- SELECT * FROM detailed;
@@ -61,8 +55,6 @@ CREATE TABLE summary (
 	return_date timestamp without time zone,
 	payment_id integer,
 	amount float,
-	address_id integer,
-	address varchar (45),
 	late_fee numeric (5,2)
 	);
 
@@ -81,20 +73,15 @@ INSERT INTO detailed (
 	return_date,
 	payment_id,
 	amount,
-	payment_date,
-	address_id,
-	address,
-	postal_code
+	payment_date
 	)
 SELECT
 	c.customer_id, c.first_name, c.last_name, c.email,
 	r.rental_id, r.rental_date, r.return_date,
-	p.payment_id, p.amount,
-	a.address_id, a.address, a.postal_code, a.phone
+	p.payment_id, p.amount
 FROM rental AS r
 INNER JOIN payment AS p ON p.rental_id = r.rental_id
-INNER JOIN customer AS c ON p.customer_id = c.customer_id
-INNER JOIN address AS a ON c.address_id = a.address_id;
+INNER JOIN customer AS c ON p.customer_id = c.customer_id
 
 
 -- To view contents of detailed table
@@ -129,11 +116,7 @@ INSERT INTO detailed (
 	late_fee,
 	payment_id,
 	amount,
-	payment_date,
-	address_id
-	address
-	postal_code
-	phone)
+	payment_date)
 SELECT
 	c.customer_id, c.first_name, c.last_name, c.email,
 	d.dealership_id, d.city,
@@ -141,12 +124,10 @@ SELECT
 	p.product_id, p.product_type, p.model, p.year
 c.customer_id, c.first_name, c.last_name, c.email,
 	r.rental_id, r.rental_date, r.return_date,
-	p.payment_id, p.amount,
-	a.address_id, a.address, a.postal_code, a.phone
+	p.payment_id, p.amount
 FROM rental AS r
 INNER JOIN payment AS p ON p.rental_ide = r.rental_id
-INNER JOIN customer AS c ON p.customer_id = c.customer_id
-INNER JOIN address AS a ON c.address_id = a.address_id;
+INNER JOIN customer AS c ON p.customer_id = c.customer_id
 END; $$;
 
 -- To call stored procedure
