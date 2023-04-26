@@ -14,10 +14,10 @@ INSERT INTO summary (
         rental_id,
         return_date,
         payment_id,
-        amount
-        CASE WHEN return_date > '2015-05-25' THEN amount + 1.00 END AS late_fee
+        amount,
+        CASE WHEN return_date > '2005-06-20 00:00:00'::timestamp THEN amount + 1.00 END AS late_fee
     FROM detailed
-    GROUP BY customer_id, first_name, email, rental_id, return_date, payment_id, amount
+    GROUP BY customer_id, first_name, email, rental_id, return_date, payment_id, amount, late_fee
     ORDER BY customer_id DESC);
 RETURN NEW;
 END; $$ LANGUAGE plpgsql;
@@ -55,7 +55,7 @@ CREATE TABLE summary (
 	return_date timestamp without time zone,
 	payment_id integer,
 	amount float,
-	late_fee numeric (5,2)
+	late_fee numeric(5,2)
 	);
 
 -- To view empty summary table	
@@ -75,14 +75,16 @@ INSERT INTO detailed (
 	amount,
 	payment_date
 	)
+	
 SELECT
 	c.customer_id, c.first_name, c.last_name, c.email,
 	r.rental_id, r.rental_date, r.return_date,
-	p.payment_id, p.amount
+	p.payment_id, p.amount, p.payment_date
 FROM rental AS r
 INNER JOIN payment AS p ON p.rental_id = r.rental_id
-INNER JOIN customer AS c ON p.customer_id = c.customer_id
-
+INNER JOIN customer AS c ON p.customer_id = c.customer_id
+WHERE return_date >= '2005-06-20 00:00:00'
+AND return_date <= '2005-06-23 00:00:00'
 
 -- To view contents of detailed table
 -- SELECT * FROM detailed;
@@ -92,7 +94,7 @@ INNER JOIN customer AS c ON p.customer_id = c.customer_id
 CREATE TRIGGER summary_refresh
 AFTER INSERT ON detailed
 FOR EACH STATEMENT
-EXECUTE PROCEDURE late_fee();
+EXECUTE PROCEDURE late_price();
 
 
 -- F. CREATE STORED PROCEDURE
@@ -113,21 +115,19 @@ INSERT INTO detailed (
 	rental_id,
 	rental_date,
 	return_date,
-	late_fee,
 	payment_id,
 	amount,
 	payment_date)
 SELECT
 	c.customer_id, c.first_name, c.last_name, c.email,
-	d.dealership_id, d.city,
-	s.sales_amount,
-	p.product_id, p.product_type, p.model, p.year
-c.customer_id, c.first_name, c.last_name, c.email,
 	r.rental_id, r.rental_date, r.return_date,
-	p.payment_id, p.amount
+	p.payment_id, p.amount, p.payment_date
 FROM rental AS r
-INNER JOIN payment AS p ON p.rental_ide = r.rental_id
-INNER JOIN customer AS c ON p.customer_id = c.customer_id
+INNER JOIN payment AS p ON p.rental_id = r.rental_id
+INNER JOIN customer AS c ON p.customer_id = c.customer_id
+WHERE return_date >= '2005-06-20 00:00:00'
+AND return_date <= '2005-06-23 00:00:00';
+
 END; $$;
 
 -- To call stored procedure
@@ -136,3 +136,5 @@ END; $$;
 -- To view results
 -- SELECT * FROM detailed;
 -- SELECT * FROM summary;
+
+drop procedure if exists refresh_reports();
