@@ -14,9 +14,9 @@ INSERT INTO summary (
         return_date,
         amount,
 	CASE 
-	WHEN return_date > '2005-06-20 00:00:00'::timestamp THEN amount + 1.00 END AS late_fee
+	WHEN return_date > '2005-06-20 00:00:00'::timestamp THEN '$' + amount + 1.00 END AS amount
     FROM detailed
-    GROUP BY customer_id, first_name, email, return_date, amount, late_fee
+    GROUP BY customer_id, first_name, email, return_date, amount
     ORDER BY customer_id DESC);
 RETURN NEW;
 END; $$ LANGUAGE plpgsql;
@@ -49,7 +49,6 @@ CREATE TABLE summary (
 	email varchar(45),
 	return_date timestamp without time zone,
 	amount float,
-	late_fee numeric(5,2)
 	);
 
 -- To view empty summary table	
