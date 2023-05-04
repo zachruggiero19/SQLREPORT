@@ -1,5 +1,3 @@
-
-
 -- B. CREATE FUNCTION refreshing the summary table with a data transformation
 
 CREATE OR REPLACE FUNCTION late_price()
@@ -12,11 +10,11 @@ INSERT INTO summary (
         first_name,
         email,
         return_date,
-        amount,
+        amount :: varchar (8),
 	CASE 
-	WHEN return_date > '2005-06-20 00:00:00'::timestamp THEN '$' + amount + 1.00 END AS amount
+	WHEN return_date < '2005-06-20 00:00:00'::timestamp THEN TRUE ELSE FALSE END AS late_fee
     FROM detailed
-    GROUP BY customer_id, first_name, email, return_date, amount
+    GROUP BY customer_id, first_name, email, return_date, amount, late_fee
     ORDER BY customer_id DESC);
 RETURN NEW;
 END; $$ LANGUAGE plpgsql;
@@ -49,6 +47,7 @@ CREATE TABLE summary (
 	email varchar(45),
 	return_date timestamp without time zone,
 	amount float,
+	late_fee boolean
 	);
 
 -- To view empty summary table	
@@ -129,4 +128,3 @@ END; $$;
 -- To view results
 -- SELECT * FROM detailed;
 -- SELECT * FROM summary;
-;
