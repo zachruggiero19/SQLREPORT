@@ -128,3 +128,4 @@ END; $$;
 -- To view results
 -- SELECT * FROM detailed;
 -- SELECT * FROM summary;
+
